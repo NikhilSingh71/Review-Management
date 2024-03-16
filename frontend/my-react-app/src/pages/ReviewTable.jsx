@@ -27,11 +27,9 @@ const ReviewTable = ({ options }) => {
             options.map((row, i) => (
               <tr key={i}>
                 <td>{i + 1}</td>
-                <td>{row?.Title}</td>
-                <td>{row?.Content}</td>
-                <td>
-                  {moment(row?.["Date-time"]).format("DD-MM-YYYY (HH:mm A)")}
-                </td>
+                <td>{row?.title}</td>
+                <td>{row?.content}</td>
+                <td>{moment(row?.createdAt).format("DD-MM-YYYY (HH:mm A)")}</td>
                 <td className="edit-cell action-cell">
                   {/* Edit button */}
                   <button

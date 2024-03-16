@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReviewTable from "./ReviewTable";
+import { listRivews } from "../config/services/reviews";
 
 let options = [
   {
@@ -113,6 +114,25 @@ const ReviewManagement = () => {
   const [searchBy, setSearchBy] = useState("");
   const [reviewsList, setReviewsList] = useState([]);
 
+  const getRivewList = () => {
+    let params = {};
+    setLoading(true);
+    setLastPage(false);
+    listRivews(params)
+      .then((res) => {
+        console.log(res, "............res");
+        let list = res?.data?.data;
+        setReviewsList(list);
+        if (res?.data?.part_variants.length < itemsPerPage) setLastPage(true);
+        setLoading(false);
+      })
+      .catch((err) => console.error(err));
+  };
+
+  useEffect(() => {
+    getRivewList();
+  }, []);
+
   return (
     <>
       <div class="tableCardContainer">
@@ -146,7 +166,7 @@ const ReviewManagement = () => {
             <div id="loader"></div>
             <div id="hardwarePartVariantTable">
               {/* <!-- Your HardwarePartVariantTable component content will be rendered here --> */}
-              <ReviewTable options={options} />
+              <ReviewTable options={reviewsList} />
             </div>
           </div>
           <div class="center cm_pagination">
