@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReviewTable from "./ReviewTable";
 import { listRivews } from "../config/services/reviews";
+import Pagination from "../pages/Pagination";
 
 let options = [
   {
@@ -131,7 +132,7 @@ const ReviewManagement = () => {
 
   useEffect(() => {
     getRivewList();
-  }, []);
+  }, [itemsPerPage, search, pageNo]);
 
   return (
     <>
@@ -150,7 +151,7 @@ const ReviewManagement = () => {
                 <h3>Manage Reviews</h3>
               </div>
               <div class="right">
-                <a href="/authorised/hardware-part-variant-form">
+                <a href="/add-review">
                   <div class="submitBtn">Create</div>
                 </a>
               </div>
@@ -159,18 +160,23 @@ const ReviewManagement = () => {
               style={{ marginBottom: "20px" }}
               class="inputRounded search-input width-auto"
               type="search"
-              placeholder="Search By Review"
+              placeholder="Search By Title"
               oninput="handleSearch(event)"
               maxlength="100"
             />
             <div id="loader"></div>
             <div id="hardwarePartVariantTable">
-              {/* <!-- Your HardwarePartVariantTable component content will be rendered here --> */}
-              <ReviewTable options={reviewsList} />
+              <ReviewTable options={reviewsList} getRivewList={getRivewList} />
             </div>
           </div>
           <div class="center cm_pagination">
-            <div id="pagination"></div>
+            <div id="pagination">
+              <Pagination
+                pageNo={pageNo}
+                setPagination={setPagination}
+                lastPage={lastPage}
+              />
+            </div>
           </div>
         </div>
       </div>

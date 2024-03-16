@@ -1,10 +1,37 @@
 import React from "react";
 import moment from "moment";
+import { deleteReview } from "../config/services/reviews";
+import { useNavigate } from "react-router-dom";
 
-const ReviewTable = ({ options }) => {
-  const handleEditClick = (row, action) => {};
+const ReviewTable = ({ options, getRivewList }) => {
+  const navigate = useNavigate();
+  const handleEditClick = (row) => {
+    let id = row?._id;
+    navigate(`/edit-review/${id}`, {
+      state: {
+        row,
+      },
+    });
+  };
 
-  const handleDelete = (row) => {};
+  const handleDelete = (row) => {
+    let params = {
+      _id: row?._id,
+    };
+
+    deleteReview(params)
+      .then((res) => {
+        if (res?.status === 200) {
+          window.alert("Entry deleted successfully!");
+          getRivewList();
+        } else {
+          console.error("Unexpected response:", res);
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting review:", error);
+      });
+  };
 
   return (
     <div>
@@ -31,15 +58,13 @@ const ReviewTable = ({ options }) => {
                 <td>{row?.content}</td>
                 <td>{moment(row?.createdAt).format("DD-MM-YYYY (HH:mm A)")}</td>
                 <td className="edit-cell action-cell">
-                  {/* Edit button */}
                   <button
                     className="form_icon"
-                    onClick={() => handleEditClick(row, "edit")}
+                    onClick={() => handleEditClick(row)}
                   >
                     Edit
                     <img src="EditIcon" alt="" />
                   </button>
-                  {/* Delete button */}
                   <button
                     className="form_icon"
                     onClick={() => handleDelete(row)}
