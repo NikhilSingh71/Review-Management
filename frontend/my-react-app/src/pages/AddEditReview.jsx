@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { addReview } from "../config/services/reviews";
+import { addReview, updateReview } from "../config/services/reviews";
 import { useNavigate, useLocation } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const AddEditReview = () => {
   const [title, setTitle] = useState("");
@@ -12,27 +13,55 @@ const AddEditReview = () => {
 
   useEffect(() => {
     if (state === null || state === undefined) return;
-    let data = state?.row;
-    if (Object.keys(data)?.length > 0) {
-      setContent(data?.content);
-      setTitle(data?.title);
+    if (Object.keys(state)?.length > 0) {
+      setContent(state?.content);
+      setTitle(state?.title);
       setIsupdate(true);
     }
   }, [state]);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    let params = {
-      title: title,
-      content: content,
-    };
-    addReview(params)
-      .then((res) => {
+
+  const handleSubmit = async (event) => {
+    if (!isUpdate)
+    {
+      event.preventDefault();
+    try {
+      let params = {
+        title: title,
+        content: content,
+      };
+      const res = await addReview(params);
+      if (res?.status === 200) {
+        toast.success("Review Added Successfully!");
+        navigate("/");
+      } else {
+        toast.error("Review Not Addded Some error occured");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+      
+    }
+    else {
+      event.preventDefault();
+      try {
+        let params = {
+          title: title,
+          content: content,
+          _id: state?._id,
+        };
+        const res = await updateReview(params);
         if (res?.status === 200) {
+          toast.success("Review Updated Successfully!");
           navigate("/");
+        } else {
+          toast.error("Review Not Addded Some error occured");
         }
-      })
-      .catch((err) => console.error(err));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    
   };
 
   const handleReset = () => {
@@ -45,9 +74,9 @@ const AddEditReview = () => {
   };
 
   return (
-    <div>
+    <div className="form-container">
       <h1>New Review</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="review-form">
         <label htmlFor="title">Title:</label>
         <br />
         <input
@@ -57,6 +86,7 @@ const AddEditReview = () => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
+          className="input-field"
         />
         <br />
         <br />
@@ -69,16 +99,15 @@ const AddEditReview = () => {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           required
+          className="input-field"
         ></textarea>
         <br />
         <br />
-        <button type="submit">{isUpdate ? "Update" : "Save"}</button>
-        <button type="button" onClick={handleReset}>
-          Reset
-        </button>
-        <button type="button" onClick={handleCancel}>
-          Cancel
-        </button>
+        <div className="button-container">
+        <button type="submit" className="submit-button">{isUpdate ? "Update" : "Save"}</button>
+        <button type="button" onClick={handleReset} className="reset-button">Reset</button>
+        <button type="button" onClick={handleCancel} className="cancel-button">Cancel</button>
+      </div>
       </form>
     </div>
   );

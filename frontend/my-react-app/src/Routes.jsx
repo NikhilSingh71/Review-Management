@@ -8,7 +8,7 @@ const RivewRoutes = () => {
     <div>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<ReviewManagement />} />
+          <Route path="/" exact element={<ReviewManagement />} />
           <Route path="/add-review" element={<AddEditReview />} />
           <Route path="/edit-review/:id" element={<AddEditReview />} />
         </Routes>

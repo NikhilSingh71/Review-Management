@@ -1,138 +1,68 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ReviewTable from "./ReviewTable";
 import { listRivews } from "../config/services/reviews";
 import Pagination from "../pages/Pagination";
 
-let options = [
-  {
-    Title: "Title 1",
-    Content: "Content for item 1",
-    "Date-time": "2024-03-16T08:00:00Z",
-  },
-  {
-    Title: "Title 2",
-    Content: "Content for item 2",
-    "Date-time": "2024-03-16T08:15:00Z",
-  },
-  {
-    Title: "Title 3",
-    Content: "Content for item 3",
-    "Date-time": "2024-03-16T08:30:00Z",
-  },
-  {
-    Title: "Title 4",
-    Content: "Content for item 4",
-    "Date-time": "2024-03-16T08:45:00Z",
-  },
-  {
-    Title: "Title 5",
-    Content: "Content for item 5",
-    "Date-time": "2024-03-16T09:00:00Z",
-  },
-  {
-    Title: "Title 6",
-    Content: "Content for item 6",
-    "Date-time": "2024-03-16T09:15:00Z",
-  },
-  {
-    Title: "Title 7",
-    Content: "Content for item 7",
-    "Date-time": "2024-03-16T09:30:00Z",
-  },
-  {
-    Title: "Title 8",
-    Content: "Content for item 8",
-    "Date-time": "2024-03-16T09:45:00Z",
-  },
-  {
-    Title: "Title 9",
-    Content: "Content for item 9",
-    "Date-time": "2024-03-16T10:00:00Z",
-  },
-  {
-    Title: "Title 10",
-    Content: "Content for item 10",
-    "Date-time": "2024-03-16T10:15:00Z",
-  },
-  {
-    Title: "Title 11",
-    Content: "Content for item 11",
-    "Date-time": "2024-03-16T10:30:00Z",
-  },
-  {
-    Title: "Title 12",
-    Content: "Content for item 12",
-    "Date-time": "2024-03-16T10:45:00Z",
-  },
-  {
-    Title: "Title 13",
-    Content: "Content for item 13",
-    "Date-time": "2024-03-16T11:00:00Z",
-  },
-  {
-    Title: "Title 14",
-    Content: "Content for item 14",
-    "Date-time": "2024-03-16T11:15:00Z",
-  },
-  {
-    Title: "Title 15",
-    Content: "Content for item 15",
-    "Date-time": "2024-03-16T11:30:00Z",
-  },
-  {
-    Title: "Title 16",
-    Content: "Content for item 16",
-    "Date-time": "2024-03-16T11:45:00Z",
-  },
-  {
-    Title: "Title 17",
-    Content: "Content for item 17",
-    "Date-time": "2024-03-16T12:00:00Z",
-  },
-  {
-    Title: "Title 18",
-    Content: "Content for item 18",
-    "Date-time": "2024-03-16T12:15:00Z",
-  },
-  {
-    Title: "Title 19",
-    Content: "Content for item 19",
-    "Date-time": "2024-03-16T12:30:00Z",
-  },
-  {
-    Title: "Title 20",
-    Content: "Content for item 20",
-    "Date-time": "2024-03-16T12:45:00Z",
-  },
-];
+const debounce = (func, delay) => {
+  let timeoutId;
+  return function (...args) {
+    const context = this;
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(context, args);
+    }, delay);
+  };
+};
 
 const ReviewManagement = () => {
+  const navigate = useNavigate()
   const [pageNo, setPagination] = useState(1);
   const [itemsPerPage] = useState(10);
   const [search, setSearchValue] = useState("");
   const [lastPage, setLastPage] = useState(false);
-  const [loader, setLoading] = useState(false);
-  const [searchBy, setSearchBy] = useState("");
   const [reviewsList, setReviewsList] = useState([]);
 
-  const getRivewList = () => {
-    let params = {};
-    setLoading(true);
-    setLastPage(false);
-    listRivews(params)
-      .then((res) => {
-        console.log(res, "............res");
-        let list = res?.data?.data;
-        setReviewsList(list);
-        if (res?.data?.part_variants.length < itemsPerPage) setLastPage(true);
-        setLoading(false);
-      })
-      .catch((err) => console.error(err));
+const getReviewList = async () => {
+  let params = {
+    pageNo: (pageNo-1),
+    count: itemsPerPage,
+    search: search,
   };
+  try {
+    setLastPage(false);
+    let result = await listRivews(params);
+    let list = result?.data?.data;
+    if (list?.length > 0) {
+      setReviewsList(list);
+      if (list?.length < itemsPerPage) setLastPage(true);
+    } else {
+      setReviewsList([]);
+      setLastPage(true); 
+    }
+  } catch (err) {
+    console.error("Error occurred while fetching reviews:", err);
+  } 
+};
+
 
   useEffect(() => {
-    getRivewList();
-  }, [itemsPerPage, search, pageNo]);
+    getReviewList();
+  }, [search, pageNo]);
+
+  const handleSearch = (e) => {
+    let value = e?.target?.value;
+    let finalValue= value.trim()
+    if (finalValue !== "") setSearchValue(finalValue);
+    else setSearchValue("")
+      
+  };
+
+  const handleCreate = () => {
+    navigate("/add-review");
+  }
+
+  const debouncedHandleSearch = debounce(handleSearch, 1000);
 
   return (
     <>
@@ -150,10 +80,11 @@ const ReviewManagement = () => {
               <div class="left">
                 <h3>Manage Reviews</h3>
               </div>
+
               <div class="right">
-                <a href="/add-review">
-                  <div class="submitBtn">Create</div>
-                </a>
+                <button className="custom_button" onClick={handleCreate}>
+                  Create
+                </button>
               </div>
             </div>
             <input
@@ -161,15 +92,15 @@ const ReviewManagement = () => {
               class="inputRounded search-input width-auto"
               type="search"
               placeholder="Search By Title"
-              oninput="handleSearch(event)"
               maxlength="100"
+              onChange={debouncedHandleSearch}
             />
-            <div id="loader"></div>
-            <div id="hardwarePartVariantTable">
-              <ReviewTable options={reviewsList} getRivewList={getRivewList} />
+           
+            <div id="reviewsTable">
+              <ReviewTable options={reviewsList} getRivewList={getReviewList} />
             </div>
           </div>
-          <div class="center cm_pagination">
+          <div class="pagination">
             <div id="pagination">
               <Pagination
                 pageNo={pageNo}

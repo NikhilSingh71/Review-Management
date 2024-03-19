@@ -1,13 +1,16 @@
 import express from "express";
 const reviewRouter = express.Router();
 import reviewFunctions from "../functions/reviewFunctions.js";
+
+
 reviewRouter.post("/new", async (req, res) => {
   let result = await reviewFunctions.addReview(req);
   res.status(result?.code).send(result);
 });
 
 reviewRouter.get("/get", async (req, res) => {
-  let result = await reviewFunctions.getReview(req);
+   let params = req?.query;
+  let result = await reviewFunctions.getReview(params);
   res.status(result?.code).send(result);
 });
 

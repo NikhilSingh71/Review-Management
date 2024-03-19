@@ -1,6 +1,7 @@
 let reviewFunctions = new Object();
 import reviewdal from "../controllers/review.js";
 import appHelper from "../helper/appHelper.js";
+
 reviewFunctions.addReview = async (req) => {
   try {
     let review = await reviewdal.addReview(req);
@@ -17,9 +18,9 @@ reviewFunctions.addReview = async (req) => {
   }
 };
 
-reviewFunctions.getReview = async (req) => {
+reviewFunctions.getReview = async (params) => {
   try {
-    let review = await reviewdal.getReview(req);
+    let review = await reviewdal.getReview(params);
     if (!review.status) {
       return appHelper.apiResponse(404, false, review?.message);
     }
@@ -51,6 +52,7 @@ reviewFunctions.deleteReview = async (req) => {
 
 reviewFunctions.updateReview = async (req) => {
   try {
+    
     let review = await reviewdal.updateReview(req);
     if (!review.status) {
       return appHelper.apiResponse(404, false, review?.message);
